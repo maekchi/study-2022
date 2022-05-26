@@ -1,5 +1,3 @@
 ># study-2022
-study
-this is test
-khj
+study /this is test / khj
 
