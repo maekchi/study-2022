@@ -1,0 +1,25 @@
+import requests
+from bs4 import BeautifulSoup
+
+#req = requests.get('https://finance.naver.com/sise/')
+#soup = BeautifulSoup(req.content, 'html.parser')
+
+#kospi = soup.find(id='KOSPI_now')
+#kosdaq = soup.find(id='KOSDAQ_now')
+
+#print (kospi)
+
+def fun(address):
+    req1 = requests.get(address)
+    soup1 = BeautifulSoup(req1.content, 'html.parser')
+
+    section = soup1.find('tbody')
+    stocks = section.find.all('tr', onmouseover="mouseOver(this)")
+    for i in stocks:
+        basic_info = i.get_text()
+        sinfo = basic_info.split("\n")
+        print("\t" + sinfo[1] + "\t\t" + sinfo[2] + "\t\t\t" + sinfo[3])
+
+baseadress = 'https://finance.naver.com/sise/sise_market_sum.naver?&page='
+for j in range(1,37):
+    fun(baseadress+str(j))
