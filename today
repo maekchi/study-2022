@@ -1,0 +1,54 @@
+import win32com.client
+import requests
+from bs4 import BeautifulSoup
+
+def return_value(address, sheet, count):
+    response = requests.get(address)
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    section = soup.find('tbody')
+    items = section.find_all('tr', onmouseover="mouseOver(this)")
+
+    for item in items:
+        count = count + 1
+        basic_info = item.get_text()
+        sinfo = basic_info.split("\n")
+        print("\t" + sinfo[1] + "\t\t" + sinfo[2] + "\t\t\t" + sinfo[3])\
+
+        sheet.Cells(count, 1).Value = sinfo[1] #A1  (행, 열) 
+        sheet.Cells(count, 2).Value = sinfo[2] #B1
+        sheet.Cells(count, 3).Value = sinfo[3] #C1
+
+    return  count
+
+def extract_excel_kosdaq(sheet, count):
+    baseaddress = 'https://finance.naver.com/sise/sise_market_sum.naver?sosok=1&page='
+
+    for i in range(1, 32):
+        count = return_value(baseaddress + str(i), sheet, count)
+
+def extract_excel_kospi(sheet, count):
+    baseaddress = 'https://finance.naver.com/sise/sise_market_sum.naver?&page='
+    for i in range(1, 37):
+        count = return_value(baseaddress + str(i), sheet, count)
+
+if __name__ == '__main__':
+    excel = win32com.client.Dispatch("Excel.Application")
+    excel.Visible = True
+
+    workbook = excel.Workbooks.Add()  # WorkBooks 생성
+
+    sheet = workbook.Worksheets("Sheet1")
+    sheet.Name ="KOSDAQ"
+    count = 0
+    extract_excel_kosdaq(sheet, count)
+
+
+    count = 0
+
+
+    sheet1 = workbook.Worksheets.Add()
+    sheet1.Name = "KOSPI"
+    extract_excel_kospi(sheet1, count)
+    workbook.SaveAs("File_KOSDAQ_KOSPI.xlsx")
+    excel.Application.Quit()
